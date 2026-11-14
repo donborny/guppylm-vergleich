@@ -15,6 +15,7 @@ h1,h2,h3,p{margin:0}
 .eyebrow{font:11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 h1{font-size:clamp(25px,3vw,36px);line-height:1.2;letter-spacing:-1px;margin:7px 0 10px}
 .page-head p{color:var(--muted);max-width:820px}
+.page-head code{font:13px var(--mono)}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px #213b4b09}
 button,input,select{font:inherit;color:var(--ink)}
 button{cursor:pointer;border:1px solid transparent;border-radius:7px;padding:8px 14px;background:transparent}
@@ -68,10 +69,16 @@ input[type=range]{accent-color:var(--orange);width:120px;vertical-align:middle}
 .info{font:11px var(--mono);color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
 .grund-Endtoken{color:var(--accent)}.grund-Tokenlimit,.grund-Kontextgrenze{color:var(--orange)}
 
-details.eigene{margin-top:18px;padding:14px 20px}
-details.eigene summary{font-weight:600;font-size:14px}
-details.eigene p{font-size:13px;color:var(--muted);margin:10px 0}
-details.eigene code{font:12px var(--mono);background:var(--surface2);padding:1px 5px;border-radius:4px}
+.upload{margin-top:18px;padding:18px 22px;display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:center;border:2px dashed #b8cfd6;box-shadow:none;transition:background .15s,border-color .15s}
+.upload.ziehen{background:var(--soft);border-color:var(--accent)}
+.upload h2{font-size:16px;margin-bottom:4px}
+.upload p{font-size:13px;color:var(--muted);max-width:820px}
+.upload code{font:12px var(--mono);background:var(--surface2);padding:1px 5px;border-radius:4px}
+.datei-knopf{cursor:pointer;border:1px solid var(--line);border-radius:7px;background:#fff;white-space:nowrap;padding:9px 16px;font-weight:600}
+#datei-status{grid-column:1/-1}
+#datei-status:empty{display:none}
+#datei-status.ok{color:var(--accent)}#datei-status.err{color:var(--orange)}
+@media(max-width:820px){.upload{grid-template-columns:1fr}}
 .fuss{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:18px}
 .fuss a{color:var(--accent)}
 @media(max-width:820px){.wrap{padding:0 16px 30px}.spalten{grid-template-columns:1fr}.frage-zeile{flex-direction:column}.regler{gap:14px}}
@@ -82,7 +89,7 @@ details.eigene code{font:12px var(--mono);background:var(--surface2);padding:1px
   <header class="page-head">
     <div class="eyebrow">GuppyLM · kleines Transformer-Sprachmodell</div>
     <h1>Checkpoints vergleichen</h1>
-    <p>Dieselbe Frage geht an zwei Trainingsstände desselben Modells (ca. 11,7 Mio. Parameter). Gerechnet wird komplett in deinem Browser, es wird nichts an einen Server geschickt. Bei gleichem Seed bekommen beide Seiten dieselben Zufallszahlen beim Sampling, sodass Unterschiede in der Antwort von den Gewichten kommen. Mit Temperatur 0 wird immer das wahrscheinlichste Token gewählt.</p>
+    <p>Dieselbe Frage geht an zwei Trainingsstände desselben Modells (ca. 11,7 Mio. Parameter). Gerechnet wird komplett in deinem Browser, es wird nichts an einen Server geschickt. Bei gleichem Seed bekommen beide Seiten dieselben Zufallszahlen beim Sampling, sodass Unterschiede in der Antwort von den Gewichten kommen. Mit Temperatur 0 wird immer das wahrscheinlichste Token gewählt. Deinen eigenen trainierten Transformer kannst du unten als <code>.pt</code>-Datei dazuladen.</p>
   </header>
 
   <section class="panel eingabe" aria-label="Eingabe">
@@ -100,6 +107,15 @@ details.eigene code{font:12px var(--mono);background:var(--surface2);padding:1px
       <button class="secondary" id="leeren" type="button">Verlauf leeren</button>
     </div>
     <p class="hinweis">Leerer Seed = echter Zufall. Mehrere Durchläufe nutzen Seed, Seed+1, … auf beiden Seiten. top_k = 0 schaltet den Filter ab. Jeder Checkpoint wird beim ersten Gebrauch geladen (ca. 23 MB).</p>
+  </section>
+
+  <section class="panel upload" id="upload" aria-label="Eigenes Modell hochladen">
+    <div class="upload-text">
+      <h2>Eigenen Transformer hochladen</h2>
+      <p>Zieh die <code>.pt</code>-Datei, die dein Notebook gespeichert hat (z. B. <code>Checkpoints/bestes_modell_b.pt</code>), hierher oder wähle sie aus. Sie erscheint dann in Spalte B, zwei Dateien auf einmal in A und B. Die Datei wird <b>nicht hochgeladen</b>: Sie bleibt auf deinem Rechner und wird nur hier im Browser gelesen.</p>
+    </div>
+    <label class="secondary datei-knopf">Datei auswählen …<input type="file" id="dateien" multiple accept=".pt,.pth,.json,.bin" hidden></label>
+    <p id="datei-status" class="hinweis" role="status"></p>
   </section>
 
   <div class="spalten">
@@ -121,12 +137,6 @@ details.eigene code{font:12px var(--mono);background:var(--surface2);padding:1px
     </section>
   </div>
 
-  <details class="panel eigene">
-    <summary>Eigenen Checkpoint ausprobieren</summary>
-    <p>Wandle deinen Checkpoint aus dem Notebook mit <code>python Hilfsskripte/exportiere_web.py Checkpoints/mein_modell.pt</code> um. Dann wähle hier die entstandenen Dateien <code>mein_modell.json</code>, <code>mein_modell.bin</code> und die passende <code>tokenizer-….json</code> aus (alle auf einmal). Die Dateien bleiben auf deinem Gerät.</p>
-    <input type="file" id="dateien" multiple accept=".json,.bin">
-    <p id="datei-status" class="hinweis"></p>
-  </details>
 
   <div class="fuss"><span id="status">Lade Checkpoint-Liste …</span><span>GuppyLM · Lehrmodell aus dem Kurs „Transformer“</span></div>
 </div>
@@ -197,22 +207,16 @@ function ladeModell(name, spalte) {
   box.hidden = false; balken.style.width = "0";
   text.textContent = `lade ${name} …`;
   const p = (async () => {
-    let meta, puffer, tok;
-    if (eintrag.quelle === "lokal") {
-      meta = eintrag.meta; puffer = await eintrag.bin.arrayBuffer();
-      tok = await holeTokenizer(meta.tokenizer, eintrag.tokenizerDaten);
-    } else {
-      meta = await holeJson(`modelle/${eintrag.meta.meta}`);
-      [tok, puffer] = await Promise.all([
-        holeTokenizer(meta.tokenizer),
-        holeBinaer(`modelle/${meta.gewichte}`, a => {
-          balken.style.width = `${(a * 100).toFixed(0)}%`;
-          text.textContent = `lade ${name} … ${(a * meta.bytes / 1e6).toFixed(1)} / ${(meta.bytes / 1e6).toFixed(1)} MB`;
-        }),
-      ]);
-    }
+    const meta = await holeJson(`modelle/${eintrag.meta.meta}`);
+    const [tok, puffer] = await Promise.all([
+      holeTokenizer(meta.tokenizer),
+      holeBinaer(`modelle/${meta.gewichte}`, a => {
+        balken.style.width = `${(a * 100).toFixed(0)}%`;
+        text.textContent = `lade ${name} … ${(a * meta.bytes / 1e6).toFixed(1)} / ${(meta.bytes / 1e6).toFixed(1)} MB`;
+      }),
+    ]);
     if (tok.sha256 !== meta.tokenizer_sha256) throw new Error("Tokenizer passt nicht zum Checkpoint (Prüfsumme).");
-    return new Guppy.GuppyModell(meta, puffer, tok);
+    return Guppy.GuppyModell.ausExport(meta, puffer, tok);
   })();
   modelle.set(name, p);
   p.then(() => { box.hidden = true; }, e => { modelle.delete(name); text.textContent = `Fehler: ${e.message}`; });
@@ -231,7 +235,7 @@ function zeigeMeta() {
       `<span class="${besser ? "besser" : ""}">Eval-Verlust <b>${c.eval_verlust?.toFixed(4) ?? "–"}</b></span>` +
       `<span>Parameter <b>${fmt(c.parameter)}</b></span>` +
       `<span>gespeichert <b>${esc(c.gespeichert ?? "–")}</b></span>` +
-      (katalog.get(s.querySelector("select").value).quelle === "lokal" ? `<span><b>lokal</b></span>` : "");
+      (katalog.get(s.querySelector("select").value).quelle === "lokal" ? `<span><b>von deinem Rechner</b></span>` : "");
   });
 }
 
@@ -239,7 +243,7 @@ function fuelleAuswahl(bevorzugt = []) {
   const namen = [...katalog.keys()];
   spalten.forEach((s, i) => {
     const sel = s.querySelector("select"), alt = bevorzugt[i] ?? sel.value;
-    sel.innerHTML = namen.map(n => `<option value="${esc(n)}">${esc(n)}${katalog.get(n).quelle === "lokal" ? " (lokal)" : ""}</option>`).join("");
+    sel.innerHTML = namen.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
     sel.value = namen.includes(alt) ? alt : namen[Math.min(i, namen.length - 1)] ?? "";
     sel.onchange = () => { zeigeMeta(); ladeModell(sel.value, s).catch(() => {}); };
   });
@@ -258,30 +262,66 @@ async function start() {
   }
 }
 
-$("#dateien").onchange = async e => {
+const datum = ms => new Date(ms).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+
+function eindeutig(basis) {
+  let name = `${basis} (eigene Datei)`, n = 2;
+  while (katalog.has(name)) name = `${basis} (eigene Datei ${n++})`;
+  return name;
+}
+
+/** .pt-Dateien direkt; alternativ die drei Dateien aus exportiere_web.py. */
+async function verarbeiteDateien(dateien) {
   const st = $("#datei-status");
-  try {
-    let meta = null, bin = null, tokDaten = null;
-    for (const f of e.target.files) {
-      if (f.name.endsWith(".bin")) { bin = f; continue; }
-      const d = JSON.parse(await f.text());
-      if (d.tensoren) meta = d; else if (d.merges) tokDaten = d;
-    }
-    if (!meta || !bin) throw new Error("Bitte die .json mit den Metadaten und die .bin-Datei auswählen.");
-    if (!tokDaten && !tokenizer.has(meta.tokenizer)) {
-      try { tokDaten = await holeJson(`modelle/${meta.tokenizer}`); }
-      catch { throw new Error(`Tokenizer ${meta.tokenizer} fehlt – bitte mit auswählen.`); }
-    }
-    const name = `${meta.name} · lokal`;
-    modelle.delete(name);
-    katalog.set(name, { meta, quelle: "lokal", bin, tokenizerDaten: tokDaten });
-    fuelleAuswahl([undefined, name]);
-    await ladeModell(name, spalten[1]);
-    st.textContent = `${meta.name} geladen (Schritt ${meta.schritt}) und in Spalte B ausgewählt.`;
-  } catch (fehler) {
-    st.textContent = `Fehler: ${fehler.message}`;
+  st.className = "hinweis"; st.textContent = "lese Datei(en) …";
+  const neu = [], fehler = [];
+  const pts = dateien.filter(f => /\.(pt|pth)$/i.test(f.name));
+  for (const f of pts) {
+    try {
+      const modell = await Guppy.GuppyModell.ausPt(await f.arrayBuffer(), f.name, datum(f.lastModified));
+      neu.push([eindeutig(modell.meta.name), modell]);
+    } catch (e) { fehler.push(`${f.name}: ${e.message}`); }
   }
-};
+  const rest = dateien.filter(f => !pts.includes(f));
+  if (rest.length) {
+    try {
+      let meta = null, bin = null, tokDaten = null;
+      for (const f of rest) {
+        if (/\.bin$/i.test(f.name)) { bin = f; continue; }
+        const d = JSON.parse(await f.text());
+        if (d.tensoren) meta = d; else if (d.merges) tokDaten = d;
+      }
+      if (!meta || !bin) throw new Error("Bitte die .pt-Datei aus dem Notebook wählen (oder .json und .bin aus exportiere_web.py).");
+      if (!tokDaten) {
+        try { tokDaten = await holeJson(`modelle/${meta.tokenizer}`); }
+        catch { throw new Error(`Tokenizer ${meta.tokenizer} fehlt – bitte mit auswählen.`); }
+      }
+      const tok = new Guppy.Tokenizer(tokDaten);
+      neu.push([eindeutig(meta.name), Guppy.GuppyModell.ausExport(meta, await bin.arrayBuffer(), tok)]);
+    } catch (e) { fehler.push(e.message); }
+  }
+  for (const [name, modell] of neu) {
+    katalog.set(name, { meta: modell.meta, quelle: "lokal" });
+    modelle.set(name, Promise.resolve(modell));
+  }
+  if (neu.length) {
+    const namen = neu.map(n => n[0]);
+    fuelleAuswahl(namen.length >= 2 ? [namen[0], namen[1]] : [undefined, namen[0]]);
+  }
+  const ok = neu.map(([n, m]) => `${n}: Schritt ${m.meta.schritt ?? "?"}, ${m.k.n_layers} Blöcke, d_model ${m.k.d_model}, ${fmt(m.meta.parameter)} Parameter`);
+  st.className = `hinweis ${fehler.length ? "err" : "ok"}`;
+  st.textContent = [...ok.map(t => "✓ " + t), ...fehler.map(t => "✗ " + t)].join("\n");
+  st.style.whiteSpace = "pre-line";
+}
+
+$("#dateien").onchange = e => { verarbeiteDateien([...e.target.files]); e.target.value = ""; };
+const zone = $("#upload");
+for (const ev of ["dragenter", "dragover"]) zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add("ziehen"); });
+for (const ev of ["dragleave", "drop"]) zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove("ziehen"); });
+zone.addEventListener("drop", e => verarbeiteDateien([...e.dataTransfer.files]));
+// Dateien, die neben die Zone fallen, nicht im Browser öffnen
+addEventListener("dragover", e => e.preventDefault());
+addEventListener("drop", e => e.preventDefault());
 
 function neuerEintrag(spalte, frage, lauf, seed) {
   const v = spalte.querySelector(".verlauf");

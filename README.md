@@ -14,7 +14,21 @@ GuppyLM ist ein Lehrmodell aus einem Kurs über Transformer. Es spielt einen Gol
 | `modelle/<name>.json` / `.bin` | Konfiguration und Gewichte (float16) eines Checkpoints |
 | `modelle/tokenizer-<sha>.json` | Vokabular und Merges |
 
-## Neuen Checkpoint veröffentlichen
+## Eigenes Modell testen (für Kursteilnehmende)
+
+Die `.pt`-Datei aus dem Notebook (z. B. `Checkpoints/bestes_modell_b.pt`) auf die Seite ziehen oder über „Datei auswählen …“ laden. Ein Export oder Python ist dafür nicht nötig. Die Datei verlässt den Rechner nicht: `guppy.js` liest das PyTorch-Format (ZIP und Pickle) direkt im Browser und führt dabei keinen Code aus der Datei aus.
+
+Voraussetzungen an die Datei, wie sie das Kurs-Notebook erzeugt:
+
+- gespeichert mit `torch.save({...})` als Dictionary mit `model_state_dict`, `konfig` und `tokenizer_json` (`schritt`, `eval_verlust` und `tokenizer_sha256` sind optional)
+- GuppyLM-Architektur: Pre-Norm-Blöcke mit `attn.qkv`/`attn.out` und `ffn.hoch`/`ffn.runter`, GELU (tanh)
+- Größe frei wählbar: `n_layers`, `d_model`, `n_heads`, `ffn_hidden`, `max_seq_len` und Vokabular kommen aus `konfig`
+- Gewichte in float32, float16 oder bfloat16, `lm_head` gebunden oder eigen
+- Byte-Level-BPE-Tokenizer aus `tokenizers`
+
+Passt etwas nicht, nennt die Seite den Grund, zum Beispiel welcher Tensor welche Form hat.
+
+## Neuen Checkpoint für alle veröffentlichen
 
 Im Kursordner (neben dem Notebook):
 
@@ -26,8 +40,6 @@ git add modelle && git commit -m "Checkpoint aktualisiert" && git push
 ```
 
 GitHub Pages zeigt die Änderung nach ein bis zwei Minuten. Um einen Checkpoint zu entfernen, löschst du seine `.json` und `.bin` in `modelle/` und führst den Export erneut aus, damit `index.json` neu geschrieben wird.
-
-Einen Checkpoint ohne Veröffentlichung testen: exportieren und auf der Seite unter „Eigenen Checkpoint ausprobieren“ die `.json`, die `.bin` und die `tokenizer-….json` auswählen.
 
 ## Lokal starten
 
