@@ -52,3 +52,20 @@ Direkt per Doppelklick geöffnet (`file://`) blockiert der Browser das Laden der
 ## Genauigkeit
 
 Geprüft gegen PyTorch: Der Tokenizer kodiert 3008 von 3008 Testtexten identisch. Mit Temperatur 0 liefern beide Checkpoints bei 20 von 20 Fragen dieselbe Antwort wie das Notebook, auch mit den float16-Gewichten. Mit Temperatur über 0 kommen die Zufallszahlen aus einem eigenen Generator (mulberry32). Antworten mit Seed sind daher reproduzierbar, aber nicht identisch mit `torch.multinomial`.
+
+## Unterrichtsmaterial: entschärfte Arbeitsblätter
+
+Im Ordner [`arbeitsblaetter/`](arbeitsblaetter/) liegen fünf Arbeitsblätter für die Gruppenphase (75 Minuten, je eine Vierergruppe) und eine Anleitung fürs Plenum:
+
+| Gruppe | Thema |
+|---|---|
+| [A](arbeitsblaetter/Arbeitsblatt_A_Trainingsbatch.md) | Vom Dialog zum Trainingsbatch: x/y, Padding, kausale Maske |
+| [B](arbeitsblaetter/Arbeitsblatt_B_Loss_und_Backprop.md) | Der Verlust und sein Weg zurück ins Netz |
+| [C](arbeitsblaetter/Arbeitsblatt_C_Was_kann_das_Netz.md) | Was kann das Netz am Ende? Embeddings und Positionen |
+| [D](arbeitsblaetter/Arbeitsblatt_D_Residualverbindung.md) | Die Residualverbindung |
+| [E](arbeitsblaetter/Arbeitsblatt_E_Naechstes_Token.md) | Das nächste Token, Temperatur, Weight Tying |
+| [Plenum](arbeitsblaetter/Anleitung_Plenum.md) | So stellen die Gruppen ihr Ergebnis vor (Reihenfolge A, C, D, B, E) |
+
+Jedes Blatt hat denselben Aufbau: kurzer Erklärtext mit Grafik, Lesefragen, Verständnisfragen, ein fertiges Experiment für Variante b des Notebooks (ohne neues Training) und eine Vorgabe fürs Plenum.
+
+Die Blätter sind eine bearbeitete, entschärfte Fassung der Arbeitsblätter aus [iludis52/DQR6_Material](https://github.com/iludis52/DQR6_Material). Dort liegen auch die Notebooks und Checkpoints.

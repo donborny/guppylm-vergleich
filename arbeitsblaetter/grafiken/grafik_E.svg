@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="100%" style="max-width:760px" font-family="Helvetica, Arial, sans-serif" role="img">
+<rect x="0" y="0" width="760" height="320" rx="10" fill="#ffffff" stroke="#e5e7eb"/>
+<defs><marker id="pf" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6b7280"/></marker><marker id="pfa" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b45309"/></marker><marker id="pfb" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#2563eb"/></marker></defs>
+<text x="20" y="30" font-size="15" fill="#1f2937" font-weight="bold">Wie das nächste Token entsteht</text>
+<rect x="20" y="55" width="124" height="58" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="82.0" y="79.5" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Text bisher</text>
+<text x="82.0" y="97.5" font-size="12" fill="#6b7280" text-anchor="middle">Prompt + Antwort</text>
+<rect x="168" y="55" width="124" height="58" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="230.0" y="79.5" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Modell</text>
+<text x="230.0" y="97.5" font-size="12" fill="#6b7280" text-anchor="middle">vorwärts</text>
+<rect x="316" y="55" width="124" height="58" rx="7" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+<text x="378.0" y="79.5" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Logits</text>
+<text x="378.0" y="97.5" font-size="12" fill="#6b7280" text-anchor="middle">letzte Position</text>
+<rect x="464" y="55" width="124" height="58" rx="7" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.5"/>
+<text x="526.0" y="79.5" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">÷ Temperatur</text>
+<text x="526.0" y="97.5" font-size="12" fill="#6b7280" text-anchor="middle">Softmax, Top-k</text>
+<rect x="612" y="55" width="124" height="58" rx="7" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.5"/>
+<text x="674.0" y="79.5" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Token wählen</text>
+<text x="674.0" y="97.5" font-size="12" fill="#6b7280" text-anchor="middle">ziehen oder argmax</text>
+<line x1="146" y1="84" x2="164" y2="84" stroke="#6b7280" stroke-width="1.5" marker-end="url(#pf)"/>
+<line x1="294" y1="84" x2="312" y2="84" stroke="#6b7280" stroke-width="1.5" marker-end="url(#pf)"/>
+<line x1="442" y1="84" x2="460" y2="84" stroke="#6b7280" stroke-width="1.5" marker-end="url(#pf)"/>
+<line x1="590" y1="84" x2="608" y2="84" stroke="#6b7280" stroke-width="1.5" marker-end="url(#pf)"/>
+<path d="M674,115 L674,138 L82,138 L82,118" fill="none" stroke="#b45309" stroke-width="2" marker-end="url(#pfa)"/>
+<text x="380" y="154" font-size="11" fill="#b45309" text-anchor="middle">anhängen und wiederholen, bis &lt;|im_end|&gt; gewählt wird (Endtoken) oder das Limit erreicht ist</text>
+<text x="20" y="188" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">Nächstes Token nach „hello guppy“ (gemessen, T = 1)</text>
+<text x="70" y="214" font-size="12" fill="#1f2937" text-anchor="end" font-family="Menlo, Consolas, monospace">hi</text>
+<rect x="78" y="200" width="177" height="18" rx="3" fill="#ccfbf1" stroke="#0f766e"/>
+<text x="260.8" y="214" font-size="11" fill="#6b7280" text-anchor="start">0,34</text>
+<text x="70" y="240" font-size="12" fill="#1f2937" text-anchor="end" font-family="Menlo, Consolas, monospace">oh</text>
+<rect x="78" y="226" width="166" height="18" rx="3" fill="#ccfbf1" stroke="#0f766e"/>
+<text x="250.4" y="240" font-size="11" fill="#6b7280" text-anchor="start">0,32</text>
+<text x="70" y="266" font-size="12" fill="#1f2937" text-anchor="end" font-family="Menlo, Consolas, monospace">hey</text>
+<rect x="78" y="252" width="83" height="18" rx="3" fill="#ccfbf1" stroke="#0f766e"/>
+<text x="167.2" y="266" font-size="11" fill="#6b7280" text-anchor="start">0,16</text>
+<rect x="420" y="178" width="320" height="128" rx="7" fill="#fef3c7" stroke="#b45309" stroke-width="1.5"/>
+<text x="580" y="198" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">Weight Tying: eine Matrix, zwei Aufgaben</text>
+<rect x="545" y="210" width="70" height="80" fill="#ffffff" stroke="#b45309"/>
+<line x1="545" y1="220" x2="615" y2="220" stroke="#e5e7eb"/>
+<line x1="545" y1="230" x2="615" y2="230" stroke="#e5e7eb"/>
+<line x1="545" y1="240" x2="615" y2="240" stroke="#e5e7eb"/>
+<line x1="545" y1="250" x2="615" y2="250" stroke="#e5e7eb"/>
+<line x1="545" y1="260" x2="615" y2="260" stroke="#e5e7eb"/>
+<line x1="545" y1="270" x2="615" y2="270" stroke="#e5e7eb"/>
+<line x1="545" y1="280" x2="615" y2="280" stroke="#e5e7eb"/>
+<text x="580" y="302" font-size="10" fill="#6b7280" text-anchor="middle" font-family="Menlo, Consolas, monospace">2597 × 384</text>
+<text x="432" y="232" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold">Eingang:</text>
+<text x="432" y="247" font-size="11" fill="#6b7280" text-anchor="start">Zeile der Token-ID</text>
+<text x="432" y="262" font-size="11" fill="#6b7280" text-anchor="start">nachschlagen</text>
+<line x1="530" y1="245" x2="543" y2="245" stroke="#b45309" stroke-width="1.5" marker-end="url(#pfa)"/>
+<text x="628" y="232" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold">Ausgang:</text>
+<text x="628" y="247" font-size="11" fill="#6b7280" text-anchor="start">Vektor mit jeder</text>
+<text x="628" y="262" font-size="11" fill="#6b7280" text-anchor="start">Zeile vergleichen</text>
+<text x="628" y="277" font-size="11" fill="#6b7280" text-anchor="start">→ Logits</text>
+</svg>
