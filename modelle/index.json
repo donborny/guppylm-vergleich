@@ -1,0 +1,24 @@
+{
+ "checkpoints": [
+  {
+   "name": "bestes_modell",
+   "schritt": 2999,
+   "eval_verlust": 0.39790374272737616,
+   "parameter": 11693952,
+   "dtype": "float16",
+   "bytes": 23387904,
+   "gespeichert": "2026-11-14 09:30",
+   "meta": "bestes_modell.json"
+  },
+  {
+   "name": "bestes_modell_b",
+   "schritt": 5800,
+   "eval_verlust": 0.3891107157683095,
+   "parameter": 11693952,
+   "dtype": "float16",
+   "bytes": 23387904,
+   "gespeichert": "2026-11-14 09:48",
+   "meta": "bestes_modell_b.json"
+  }
+ ]
+}

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuppyLM · Checkpoint-Vergleich</title>
+<meta name="description" content="Zwei Checkpoints eines kleinen Transformer-Sprachmodells nebeneinander befragen – komplett im Browser.">
+<style>
+:root{color-scheme:light;--bg:#eef1f4;--surface:#fff;--surface2:#f6f8fa;--ink:#16252e;--muted:#536773;--line:#d6dfe5;--accent:#096d78;--soft:#e0f1f1;--orange:#b55319;--orange-soft:#fff0e3;--purple:#7055a5;--purple-soft:#eee8f7;--mono:Consolas,"Cascadia Code",ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",system-ui,sans-serif}
+.wrap{max-width:1300px;margin:auto;padding:0 32px 40px}
+h1,h2,h3,p{margin:0}
+.page-head{padding:32px 0 22px}
+.eyebrow{font:11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(25px,3vw,36px);line-height:1.2;letter-spacing:-1px;margin:7px 0 10px}
+.page-head p{color:var(--muted);max-width:820px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px #213b4b09}
+button,input,select{font:inherit;color:var(--ink)}
+button{cursor:pointer;border:1px solid transparent;border-radius:7px;padding:8px 14px;background:transparent}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:3px solid #168ba8;outline-offset:2px}
+.primary{background:var(--accent);color:#fff;font-weight:600}
+.primary:hover:not(:disabled){background:#075561}
+.secondary{border-color:var(--line);background:#fff;font-size:13px}
+.secondary:hover{background:var(--soft)}
+select,input[type=text],input[type=number]{border:1px solid var(--line);border-radius:6px;background:#fff;padding:7px 9px;font-size:14px}
+input[type=range]{accent-color:var(--orange);width:120px;vertical-align:middle}
+
+.eingabe{padding:20px 22px;display:grid;gap:14px}
+.frage-zeile{display:flex;gap:10px}
+.frage-zeile input{flex:1;font-size:16px;padding:10px 12px;min-width:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:99px;background:var(--surface2);color:var(--muted)}
+.chip:hover{background:var(--soft);color:var(--ink)}
+.regler{display:flex;gap:22px;flex-wrap:wrap;align-items:center;font-size:12px;padding-top:12px;border-top:1px solid var(--line)}
+.regler label{display:flex;align-items:center;gap:8px;font-weight:600}
+.regler output{font:12px var(--mono);min-width:30px;color:var(--orange)}
+.regler input[type=number]{width:80px;font-size:13px;padding:5px 7px}
+.hinweis{font-size:12px;color:var(--muted)}
+
+.spalten{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.spalte{display:flex;flex-direction:column;min-width:0}
+.spalte-kopf{padding:16px 18px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.spalte-kopf .titel{display:flex;align-items:center;gap:10px}
+.marke{display:grid;place-items:center;width:28px;height:28px;border-radius:7px;color:#fff;font:15px var(--mono);flex:none}
+.links .marke{background:var(--accent)}.rechts .marke{background:var(--purple)}
+.spalte-kopf select{flex:1;min-width:0}
+.meta{display:flex;gap:6px;flex-wrap:wrap}
+.meta span{font:11px var(--mono);padding:3px 7px;border-radius:5px;background:var(--surface2);border:1px solid var(--line);color:var(--muted)}
+.meta span b{color:var(--ink);font-weight:600}
+.meta .besser{background:var(--soft);border-color:#a9d3d3}
+.ladebalken{height:4px;background:#e2e9ed;border-radius:3px;overflow:hidden}
+.ladebalken div{height:100%;width:0;background:var(--accent);transition:width .15s}
+.rechts .ladebalken div{background:var(--purple)}
+.ladetext{font:11px var(--mono);color:var(--muted)}
+.fehler{font-size:12px;color:var(--orange);background:var(--orange-soft);padding:8px 10px;border-radius:6px}
+.verlauf{padding:6px 18px 18px;display:flex;flex-direction:column}
+.leer{color:var(--muted);font-size:13px;padding:24px 0;text-align:center}
+.eintrag{padding:12px 0;border-bottom:1px solid var(--line)}
+.eintrag:last-child{border-bottom:0}
+.eintrag .f{font-size:12px;color:var(--muted);margin-bottom:4px}
+.eintrag .f b{color:var(--ink);font-weight:600}
+.antwort{font:14px/1.6 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;padding:8px 10px;border-radius:6px;background:var(--surface2);margin:4px 0;min-height:2.4em}
+.links .antwort{border-left:3px solid var(--accent)}.rechts .antwort{border-left:3px solid var(--purple)}
+.antwort.laedt{color:var(--muted)}
+.antwort.err{color:var(--orange);background:var(--orange-soft)}
+.info{font:11px var(--mono);color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+.grund-Endtoken{color:var(--accent)}.grund-Tokenlimit,.grund-Kontextgrenze{color:var(--orange)}
+
+details.eigene{margin-top:18px;padding:14px 20px}
+details.eigene summary{font-weight:600;font-size:14px}
+details.eigene p{font-size:13px;color:var(--muted);margin:10px 0}
+details.eigene code{font:12px var(--mono);background:var(--surface2);padding:1px 5px;border-radius:4px}
+.fuss{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:18px}
+.fuss a{color:var(--accent)}
+@media(max-width:820px){.wrap{padding:0 16px 30px}.spalten{grid-template-columns:1fr}.frage-zeile{flex-direction:column}.regler{gap:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="page-head">
+    <div class="eyebrow">GuppyLM · kleines Transformer-Sprachmodell</div>
+    <h1>Checkpoints vergleichen</h1>
+    <p>Dieselbe Frage geht an zwei Trainingsstände desselben Modells (ca. 11,7 Mio. Parameter). Gerechnet wird komplett in deinem Browser, es wird nichts an einen Server geschickt. Bei gleichem Seed bekommen beide Seiten dieselben Zufallszahlen beim Sampling, sodass Unterschiede in der Antwort von den Gewichten kommen. Mit Temperatur 0 wird immer das wahrscheinlichste Token gewählt.</p>
+  </header>
+
+  <section class="panel eingabe" aria-label="Eingabe">
+    <form class="frage-zeile" id="formular">
+      <input type="text" id="frage" placeholder="Frage an Guppy (auf Englisch), z. B. hello guppy" autocomplete="off" required>
+      <button class="primary" id="los" type="submit">Vergleichen</button>
+    </form>
+    <div class="chips" id="chips" aria-label="Testfragen"></div>
+    <div class="regler">
+      <label>Temperatur <input type="range" id="temperatur" min="0" max="2" step="0.05" value="0.7"><output id="temperatur-wert">0.70</output></label>
+      <label>top_k <input type="number" id="top_k" min="0" max="5000" value="50"></label>
+      <label>max_neu <input type="number" id="max_neu" min="1" max="128" value="64"></label>
+      <label>Seed <input type="number" id="seed" min="0" value="42"></label>
+      <label>Durchläufe <input type="number" id="laeufe" min="1" max="8" value="1"></label>
+      <button class="secondary" id="leeren" type="button">Verlauf leeren</button>
+    </div>
+    <p class="hinweis">Leerer Seed = echter Zufall. Mehrere Durchläufe nutzen Seed, Seed+1, … auf beiden Seiten. top_k = 0 schaltet den Filter ab. Jeder Checkpoint wird beim ersten Gebrauch geladen (ca. 23 MB).</p>
+  </section>
+
+  <div class="spalten">
+    <section class="panel spalte links" aria-label="Checkpoint A">
+      <div class="spalte-kopf">
+        <div class="titel"><span class="marke">A</span><select aria-label="Checkpoint A"></select></div>
+        <div class="meta"></div>
+        <div class="laden" hidden><div class="ladebalken"><div></div></div><span class="ladetext"></span></div>
+      </div>
+      <div class="verlauf"><p class="leer">Noch keine Antworten.</p></div>
+    </section>
+    <section class="panel spalte rechts" aria-label="Checkpoint B">
+      <div class="spalte-kopf">
+        <div class="titel"><span class="marke">B</span><select aria-label="Checkpoint B"></select></div>
+        <div class="meta"></div>
+        <div class="laden" hidden><div class="ladebalken"><div></div></div><span class="ladetext"></span></div>
+      </div>
+      <div class="verlauf"><p class="leer">Noch keine Antworten.</p></div>
+    </section>
+  </div>
+
+  <details class="panel eigene">
+    <summary>Eigenen Checkpoint ausprobieren</summary>
+    <p>Wandle deinen Checkpoint aus dem Notebook mit <code>python Hilfsskripte/exportiere_web.py Checkpoints/mein_modell.pt</code> um. Dann wähle hier die entstandenen Dateien <code>mein_modell.json</code>, <code>mein_modell.bin</code> und die passende <code>tokenizer-….json</code> aus (alle auf einmal). Die Dateien bleiben auf deinem Gerät.</p>
+    <input type="file" id="dateien" multiple accept=".json,.bin">
+    <p id="datei-status" class="hinweis"></p>
+  </details>
+
+  <div class="fuss"><span id="status">Lade Checkpoint-Liste …</span><span>GuppyLM · Lehrmodell aus dem Kurs „Transformer“</span></div>
+</div>
+
+<script src="guppy.js"></script>
+<script>
+const TESTFRAGEN = ["hello guppy","are you hungry","it's very hot today","how is the water",
+  "do you like bubbles","what is the internet","do you sometimes feel lonely",
+  "the cat is watching you","tell me a joke","what do you dream about",
+  "what is the meaning of life","goodnight guppy"];
+
+const $ = s => document.querySelector(s);
+const spalten = [...document.querySelectorAll(".spalte")];
+const katalog = new Map();      // name -> {meta (aus index.json oder lokal), quelle: "server"|"lokal", dateien?}
+const modelle = new Map();      // name -> Promise<GuppyModell>
+const tokenizer = new Map();    // Dateiname -> Promise<Tokenizer>
+let rechnet = false;
+
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => n == null ? "–" : n.toLocaleString("de-DE");
+
+for (const f of TESTFRAGEN) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = f;
+  b.onclick = () => { $("#frage").value = f; vergleiche(); };
+  $("#chips").append(b);
+}
+$("#temperatur").oninput = e => $("#temperatur-wert").value = Number(e.target.value).toFixed(2);
+
+async function holeJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+  return r.json();
+}
+
+async function holeBinaer(url, fortschritt) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`);
+  // Content-Length kann bei komprimierter Auslieferung kleiner sein als die Daten: nur für die Anzeige nutzen.
+  const erwartet = Number(r.headers.get("Content-Length")) || 0;
+  if (!r.body) return r.arrayBuffer();
+  const leser = r.body.getReader(), stuecke = [];
+  let pos = 0;
+  for (;;) {
+    const { done, value } = await leser.read();
+    if (done) break;
+    stuecke.push(value); pos += value.length;
+    if (erwartet) fortschritt(Math.min(1, pos / erwartet));
+  }
+  const ziel = new Uint8Array(pos);
+  let o = 0;
+  for (const s of stuecke) { ziel.set(s, o); o += s.length; }
+  return ziel.buffer;
+}
+
+function holeTokenizer(datei, lokal) {
+  if (!tokenizer.has(datei)) {
+    tokenizer.set(datei, (lokal ? Promise.resolve(lokal) : holeJson(`modelle/${datei}`))
+      .then(d => new Guppy.Tokenizer(d)));
+  }
+  return tokenizer.get(datei);
+}
+
+function ladeModell(name, spalte) {
+  if (modelle.has(name)) return modelle.get(name);
+  const eintrag = katalog.get(name);
+  const box = spalte.querySelector(".laden"), balken = box.querySelector(".ladebalken div"), text = box.querySelector(".ladetext");
+  box.hidden = false; balken.style.width = "0";
+  text.textContent = `lade ${name} …`;
+  const p = (async () => {
+    let meta, puffer, tok;
+    if (eintrag.quelle === "lokal") {
+      meta = eintrag.meta; puffer = await eintrag.bin.arrayBuffer();
+      tok = await holeTokenizer(meta.tokenizer, eintrag.tokenizerDaten);
+    } else {
+      meta = await holeJson(`modelle/${eintrag.meta.meta}`);
+      [tok, puffer] = await Promise.all([
+        holeTokenizer(meta.tokenizer),
+        holeBinaer(`modelle/${meta.gewichte}`, a => {
+          balken.style.width = `${(a * 100).toFixed(0)}%`;
+          text.textContent = `lade ${name} … ${(a * meta.bytes / 1e6).toFixed(1)} / ${(meta.bytes / 1e6).toFixed(1)} MB`;
+        }),
+      ]);
+    }
+    if (tok.sha256 !== meta.tokenizer_sha256) throw new Error("Tokenizer passt nicht zum Checkpoint (Prüfsumme).");
+    return new Guppy.GuppyModell(meta, puffer, tok);
+  })();
+  modelle.set(name, p);
+  p.then(() => { box.hidden = true; }, e => { modelle.delete(name); text.textContent = `Fehler: ${e.message}`; });
+  return p;
+}
+
+function zeigeMeta() {
+  const gewaehlt = spalten.map(s => katalog.get(s.querySelector("select").value)?.meta);
+  spalten.forEach((s, i) => {
+    const c = gewaehlt[i], meta = s.querySelector(".meta");
+    if (!c) { meta.innerHTML = ""; return; }
+    const anderer = gewaehlt[1 - i]?.eval_verlust;
+    const besser = anderer != null && c.eval_verlust < anderer;
+    meta.innerHTML =
+      `<span>Schritt <b>${fmt(c.schritt)}</b></span>` +
+      `<span class="${besser ? "besser" : ""}">Eval-Verlust <b>${c.eval_verlust?.toFixed(4) ?? "–"}</b></span>` +
+      `<span>Parameter <b>${fmt(c.parameter)}</b></span>` +
+      `<span>gespeichert <b>${esc(c.gespeichert ?? "–")}</b></span>` +
+      (katalog.get(s.querySelector("select").value).quelle === "lokal" ? `<span><b>lokal</b></span>` : "");
+  });
+}
+
+function fuelleAuswahl(bevorzugt = []) {
+  const namen = [...katalog.keys()];
+  spalten.forEach((s, i) => {
+    const sel = s.querySelector("select"), alt = bevorzugt[i] ?? sel.value;
+    sel.innerHTML = namen.map(n => `<option value="${esc(n)}">${esc(n)}${katalog.get(n).quelle === "lokal" ? " (lokal)" : ""}</option>`).join("");
+    sel.value = namen.includes(alt) ? alt : namen[Math.min(i, namen.length - 1)] ?? "";
+    sel.onchange = () => { zeigeMeta(); ladeModell(sel.value, s).catch(() => {}); };
+  });
+  zeigeMeta();
+}
+
+async function start() {
+  try {
+    const index = await holeJson("modelle/index.json");
+    for (const c of index.checkpoints) katalog.set(c.name, { meta: c, quelle: "server" });
+    fuelleAuswahl();
+    $("#status").textContent = `${katalog.size} Checkpoint(s) verfügbar · Rechnung lokal im Browser`;
+    spalten.forEach(s => s.querySelector("select").value && ladeModell(s.querySelector("select").value, s).catch(() => {}));
+  } catch (e) {
+    $("#status").textContent = `Checkpoint-Liste nicht ladbar (${e.message}). Lokal bitte über einen Webserver öffnen, z. B. python -m http.server im Ordner web/.`;
+  }
+}
+
+$("#dateien").onchange = async e => {
+  const st = $("#datei-status");
+  try {
+    let meta = null, bin = null, tokDaten = null;
+    for (const f of e.target.files) {
+      if (f.name.endsWith(".bin")) { bin = f; continue; }
+      const d = JSON.parse(await f.text());
+      if (d.tensoren) meta = d; else if (d.merges) tokDaten = d;
+    }
+    if (!meta || !bin) throw new Error("Bitte die .json mit den Metadaten und die .bin-Datei auswählen.");
+    if (!tokDaten && !tokenizer.has(meta.tokenizer)) {
+      try { tokDaten = await holeJson(`modelle/${meta.tokenizer}`); }
+      catch { throw new Error(`Tokenizer ${meta.tokenizer} fehlt – bitte mit auswählen.`); }
+    }
+    const name = `${meta.name} · lokal`;
+    modelle.delete(name);
+    katalog.set(name, { meta, quelle: "lokal", bin, tokenizerDaten: tokDaten });
+    fuelleAuswahl([undefined, name]);
+    await ladeModell(name, spalten[1]);
+    st.textContent = `${meta.name} geladen (Schritt ${meta.schritt}) und in Spalte B ausgewählt.`;
+  } catch (fehler) {
+    st.textContent = `Fehler: ${fehler.message}`;
+  }
+};
+
+function neuerEintrag(spalte, frage, lauf, seed) {
+  const v = spalte.querySelector(".verlauf");
+  v.querySelector(".leer")?.remove();
+  const el = document.createElement("div");
+  el.className = "eintrag";
+  const t = Number($("#temperatur").value).toFixed(2);
+  el.innerHTML = `<div class="f"><b>${esc(frage)}</b> · T=${t}${seed != null ? ` · Seed ${seed}` : ""}${lauf ? ` · Lauf ${lauf}` : ""}</div>` +
+    `<div class="antwort laedt">wartet …</div><div class="info"></div>`;
+  v.prepend(el);
+  return el;
+}
+
+async function frageAn(spalte, frage, seed, el) {
+  const name = spalte.querySelector("select").value;
+  const a = el.querySelector(".antwort"), info = el.querySelector(".info");
+  try {
+    const modell = await ladeModell(name, spalte);
+    a.textContent = "rechnet …";
+    const d = await Guppy.antworte(modell, frage, {
+      temperatur: Math.max(0, Number($("#temperatur").value)),
+      topK: Math.max(0, Math.floor(Number($("#top_k").value) || 0)),
+      maxNeu: Math.max(1, Math.min(128, Math.floor(Number($("#max_neu").value) || 64))),
+      seed, beiToken: t => { a.textContent = t || "…"; },
+    });
+    a.className = "antwort"; a.textContent = d.text || "(leere Antwort)";
+    info.innerHTML = `<span class="grund-${esc(d.grund)}">${esc(d.grund)}</span>` +
+      `<span>${d.neueTokens} Tokens</span><span>${d.ms} ms</span><span>${esc(name)}</span>`;
+  } catch (e) {
+    a.className = "antwort err"; a.textContent = e.message;
+  }
+}
+
+async function vergleiche() {
+  const frage = $("#frage").value.trim();
+  if (!frage || !katalog.size || rechnet) return;
+  const laeufe = Math.max(1, Math.min(8, Number($("#laeufe").value) || 1));
+  const seedRoh = $("#seed").value.trim();
+  rechnet = true; $("#los").disabled = true;
+  try {
+    for (let i = 0; i < laeufe; i++) {
+      const seed = seedRoh === "" ? null : Number(seedRoh) + i;
+      const els = spalten.map(s => neuerEintrag(s, frage, laeufe > 1 ? i + 1 : 0, seed));
+      for (let k = 0; k < 2; k++) await frageAn(spalten[k], frage, seed, els[k]);
+    }
+  } finally { rechnet = false; $("#los").disabled = false; }
+}
+
+$("#formular").onsubmit = e => { e.preventDefault(); vergleiche(); };
+$("#leeren").onclick = () => spalten.forEach(s => s.querySelector(".verlauf").innerHTML = '<p class="leer">Noch keine Antworten.</p>');
+start();
+</script>
+</body>
+</html>
